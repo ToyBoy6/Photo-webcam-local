@@ -50,7 +50,7 @@
 
         <!-- Zone Caméra & Capture (7 Cols) -->
         <section class="lg:col-span-7 flex flex-col gap-4">
-            <div class="bg-slate-950 rounded-2xl border border-slate-800 p-4 shadow-xl flex flex-col justify-between h-[420px] sm:h-[480px] relative overflow-hidden group">
+            <div class="bg-slate-950 rounded-2xl border border-slate-800 p-4 shadow-xl flex flex-col justify-between h-[380px] sm:h-[450px] relative overflow-hidden group">
                 
                 <!-- Écran Caméra / Flux Vidéo -->
                 <div class="relative w-full h-full bg-slate-900 rounded-xl overflow-hidden flex items-center justify-center border border-slate-800/80">
@@ -61,7 +61,7 @@
                             <i data-lucide="video-off" class="w-10 h-10"></i>
                         </div>
                         <p class="text-sm font-medium">Caméra désactivée</p>
-                        <p class="text-xs text-slate-600 max-w-xs mt-1">Autorisez l'accès à la caméra pour commencer à prendre des photos.</p>
+                        <p class="text-xs text-slate-600 max-w-xs mt-1">Autorisez l'accès à la caméra pour commencer.</p>
                     </div>
 
                     <!-- Elements Flux Vidéo & Canvas -->
@@ -74,70 +74,64 @@
 
                 <!-- Commandes de la Caméra -->
                 <div class="mt-4 flex items-center justify-center gap-3">
-                    <button id="btn-toggle-camera" onclick="toggleCamera()" class="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white text-sm font-medium transition flex items-center gap-2 shadow-lg shadow-indigo-600/20">
+                    <button id="btn-toggle-camera" onclick="toggleCamera()" class="px-4 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white text-sm font-medium transition flex items-center gap-2 shadow-lg shadow-indigo-600/20 touch-manipulation">
                         <i data-lucide="power" class="w-4 h-4"></i>
-                        <span>Démarrer Caméra</span>
+                        <span>Démarrer</span>
                     </button>
 
-                    <button id="btn-capture" onclick="takePhoto()" disabled class="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white text-sm font-medium transition flex items-center gap-2 shadow-lg shadow-emerald-600/20 disabled:opacity-40 disabled:cursor-not-allowed disabled:active:scale-100">
-                        <i data-lucide="aperture" class="w-4 h-4"></i>
+                    <button id="btn-capture" onclick="takePhoto()" disabled class="px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white text-sm font-semibold transition flex items-center gap-2 shadow-lg shadow-emerald-600/20 disabled:opacity-40 disabled:cursor-not-allowed disabled:active:scale-100 touch-manipulation">
+                        <i data-lucide="aperture" class="w-5 h-5"></i>
                         <span>Prendre Photo</span>
                     </button>
                     
-                    <button id="btn-flip" onclick="flipCamera()" class="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition hidden" title="Changer de caméra">
-                        <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                    <button id="btn-flip" onclick="flipCamera()" class="p-3 rounded-xl bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-300 transition hidden touch-manipulation" title="Changer de caméra">
+                        <i data-lucide="refresh-cw" class="w-5 h-5"></i>
                     </button>
                 </div>
             </div>
         </section>
 
-        <!-- Aperçu & Galerie (5 Cols) -->
-        <section class="lg:col-span-5 flex flex-col gap-6">
+        <!-- Galerie & Mode Suppression (5 Cols) -->
+        <section class="lg:col-span-5 flex flex-col gap-4">
 
-            <!-- Aperçu de la Dernière Capture -->
-            <div class="bg-slate-950 rounded-2xl border border-slate-800 p-4 shadow-xl">
-                <h2 class="text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">
-                    <i data-lucide="image" class="w-4 h-4 text-indigo-400"></i>
-                    Dernière capture
-                </h2>
-                
-                <div id="preview-container" class="relative aspect-video bg-slate-900 rounded-xl overflow-hidden border border-slate-800 flex items-center justify-center">
-                    <span id="preview-empty" class="text-xs text-slate-500">Aucune photo prise</span>
-                    <img id="preview-image" class="w-full h-full object-cover hidden" alt="Aperçu de la photo">
-                </div>
-
-                <!-- Actions sur l'aperçu -->
-                <div id="preview-actions" class="mt-3 grid grid-cols-2 gap-2 opacity-50 pointer-events-none transition-opacity">
-                    <button id="btn-download-last" onclick="downloadCurrentPhoto()" class="w-full py-2 px-3 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium transition flex items-center justify-center gap-1.5 border border-slate-700">
-                        <i data-lucide="download" class="w-3.5 h-3.5"></i>
-                        Télécharger
-                    </button>
-                    <button id="btn-save-last" onclick="saveCurrentPhoto()" class="w-full py-2 px-3 rounded-lg bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-300 text-xs font-medium transition flex items-center justify-center gap-1.5 border border-indigo-500/30">
-                        <i data-lucide="save" class="w-3.5 h-3.5"></i>
-                        Enregistrer
-                    </button>
-                </div>
-            </div>
-
-            <!-- Galerie Locale -->
-            <div class="bg-slate-950 rounded-2xl border border-slate-800 p-4 shadow-xl flex-1 flex flex-col min-h-[250px]">
+            <!-- Galerie Locale (Sauvegarde Auto + Suppression Mobile) -->
+            <div class="bg-slate-950 rounded-2xl border border-slate-800 p-4 shadow-xl flex-1 flex flex-col min-h-[350px]">
                 <div class="flex items-center justify-between mb-3">
-                    <h2 class="text-sm font-semibold text-slate-300 flex items-center gap-2">
-                        <i data-lucide="hard-drive" class="w-4 h-4 text-emerald-400"></i>
-                        Galerie Locale (IndexedDB)
-                    </h2>
-                    <button onclick="clearAllGallery()" class="text-xs text-rose-400 hover:text-rose-300 transition flex items-center gap-1">
-                        <i data-lucide="trash-2" class="w-3 h-3"></i> Tout effacer
+                    <div>
+                        <h2 class="text-sm font-semibold text-slate-300 flex items-center gap-2">
+                            <i data-lucide="hard-drive" class="w-4 h-4 text-emerald-400"></i>
+                            Galerie Locale
+                        </h2>
+                        <p class="text-[10px] text-emerald-400/80 font-medium">Sauvegarde auto activée</p>
+                    </div>
+
+                    <!-- Actions Galerie -->
+                    <div class="flex items-center gap-2">
+                        <button id="btn-toggle-select" onclick="toggleSelectMode()" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-slate-300 transition flex items-center gap-1 border border-slate-700 touch-manipulation">
+                            <i data-lucide="check-square" class="w-3.5 h-3.5"></i>
+                            <span id="select-mode-text">Sélectionner</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Barre d'action rapide pour la sélection multiple -->
+                <div id="multi-select-bar" class="hidden mb-3 p-2 bg-slate-900 border border-slate-800 rounded-xl flex items-center justify-between">
+                    <span id="selected-count" class="text-xs text-slate-400 pl-2">0 sélectionnée(s)</span>
+                    <button onclick="deleteSelectedPhotos()" class="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-xs font-medium transition flex items-center gap-1.5 shadow-md shadow-rose-600/20 touch-manipulation">
+                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                        Supprimer la sélection
                     </button>
                 </div>
 
                 <!-- Liste d'images stockées -->
-                <div id="gallery-grid" class="grid grid-cols-3 gap-2 overflow-y-auto max-h-[220px] pr-1 no-scrollbar">
+                <div id="gallery-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-3 overflow-y-auto max-h-[420px] pr-1 no-scrollbar">
                     <!-- Généré dynamiquement en JS -->
                 </div>
 
-                <div id="gallery-empty" class="flex-1 flex flex-col items-center justify-center text-center p-4 border border-dashed border-slate-800 rounded-xl">
-                    <p class="text-xs text-slate-500">Aucune photo enregistrée localement.</p>
+                <div id="gallery-empty" class="flex-1 flex flex-col items-center justify-center text-center p-6 border border-dashed border-slate-800 rounded-xl">
+                    <i data-lucide="image-off" class="w-8 h-8 text-slate-600 mb-2"></i>
+                    <p class="text-xs text-slate-500">Aucune photo enregistrée.</p>
+                    <p class="text-[11px] text-slate-600 mt-0.5">Les photos prises sont stockées automatiquement.</p>
                 </div>
             </div>
 
@@ -155,9 +149,10 @@
     <script>
         // Variables d'état
         let stream = null;
-        let currentImageData = null;
         let currentFacingMode = 'user';
         let db = null;
+        let isSelectMode = false;
+        let selectedPhotoIds = new Set();
 
         // Éléments HTML
         const video = document.getElementById('video-stream');
@@ -166,11 +161,10 @@
         const btnToggleCamera = document.getElementById('btn-toggle-camera');
         const btnCapture = document.getElementById('btn-capture');
         const btnFlip = document.getElementById('btn-flip');
-        const previewImage = document.getElementById('preview-image');
-        const previewEmpty = document.getElementById('preview-empty');
-        const previewActions = document.getElementById('preview-actions');
         const galleryGrid = document.getElementById('gallery-grid');
         const galleryEmpty = document.getElementById('gallery-empty');
+        const multiSelectBar = document.getElementById('multi-select-bar');
+        const selectedCountEl = document.getElementById('selected-count');
 
         // Initialisation d'IndexedDB pour un stockage puissant et persistant
         function initDB() {
@@ -224,7 +218,7 @@
                 // Mettre à jour le bouton
                 btnToggleCamera.classList.replace('bg-indigo-600', 'bg-rose-600');
                 btnToggleCamera.classList.replace('hover:bg-indigo-500', 'hover:bg-rose-500');
-                btnToggleCamera.querySelector('span').innerText = 'Arrêter Caméra';
+                btnToggleCamera.querySelector('span').innerText = 'Arrêter';
                 
                 // Détecter si plusieurs caméras sont disponibles
                 const devices = await navigator.mediaDevices.enumerateDevices();
@@ -255,7 +249,7 @@
             // Réinitialiser le bouton
             btnToggleCamera.classList.replace('bg-rose-600', 'bg-indigo-600');
             btnToggleCamera.classList.replace('hover:bg-rose-500', 'hover:bg-indigo-500');
-            btnToggleCamera.querySelector('span').innerText = 'Démarrer Caméra';
+            btnToggleCamera.querySelector('span').innerText = 'Démarrer';
 
             showToast('Caméra désactivée', 'power');
         }
@@ -267,7 +261,7 @@
             await startCamera();
         }
 
-        // Capturer une photo depuis le flux vidéo
+        // Capturer une photo et la sauvegarder automatiquement
         function takePhoto() {
             if (!stream) return;
 
@@ -289,27 +283,22 @@
 
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-            // Extraire la photo en format Base64 JPEG (haute qualité)
-            currentImageData = canvas.toDataURL('image/jpeg', 0.92);
+            // Extraire la photo en format Base64 JPEG
+            const imageData = canvas.toDataURL('image/jpeg', 0.92);
 
-            // Afficher dans la zone de prévisualisation
-            previewImage.src = currentImageData;
-            previewImage.classList.remove('hidden');
-            previewEmpty.classList.add('hidden');
-            previewActions.classList.remove('opacity-50', 'pointer-events-none');
-
-            showToast('Photo capturée !', 'check');
+            // SAUVEGARDE AUTOMATIQUE dans IndexedDB
+            savePhotoAuto(imageData);
         }
 
-        // Enregistrer la photo courante dans IndexedDB
-        function saveCurrentPhoto() {
-            if (!currentImageData || !db) return;
+        // Sauvegarde automatique dans la base locale
+        function savePhotoAuto(imageData) {
+            if (!imageData || !db) return;
 
             const transaction = db.transaction(['photos'], 'readwrite');
             const store = transaction.objectStore('photos');
             
             const photoRecord = {
-                data: currentImageData,
+                data: imageData,
                 date: new Date().toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' }),
                 timestamp: Date.now()
             };
@@ -317,19 +306,62 @@
             const request = store.add(photoRecord);
 
             request.onsuccess = () => {
-                showToast('Photo enregistrée en local !', 'hard-drive');
+                showToast('Photo capturée & sauvegardée !', 'check-circle');
                 loadGallery();
             };
 
             request.onerror = () => {
-                showToast('Erreur d\'enregistrement', 'alert-circle');
+                showToast('Erreur d\'enregistrement auto', 'alert-circle');
             };
         }
 
-        // Télécharger la photo courante directement
-        function downloadCurrentPhoto() {
-            if (!currentImageData) return;
-            downloadDataUrl(currentImageData, `photo-${Date.now()}.jpg`);
+        // Mode sélection multiple (pour suppression mobile rapide)
+        function toggleSelectMode() {
+            isSelectMode = !isSelectMode;
+            selectedPhotoIds.clear();
+            updateSelectedCount();
+
+            const btnText = document.getElementById('select-mode-text');
+            if (isSelectMode) {
+                btnText.innerText = 'Annuler';
+                multiSelectBar.classList.remove('hidden');
+            } else {
+                btnText.innerText = 'Sélectionner';
+                multiSelectBar.classList.add('hidden');
+            }
+            loadGallery();
+        }
+
+        function toggleSelectPhoto(id) {
+            if (selectedPhotoIds.has(id)) {
+                selectedPhotoIds.delete(id);
+            } else {
+                selectedPhotoIds.add(id);
+            }
+            updateSelectedCount();
+            loadGallery();
+        }
+
+        function updateSelectedCount() {
+            selectedCountEl.innerText = `${selectedPhotoIds.size} sélectionnée(s)`;
+        }
+
+        // Supprimer toutes les photos sélectionnées
+        function deleteSelectedPhotos() {
+            if (selectedPhotoIds.size === 0 || !db) return;
+
+            const transaction = db.transaction(['photos'], 'readwrite');
+            const store = transaction.objectStore('photos');
+
+            selectedPhotoIds.forEach(id => {
+                store.delete(id);
+            });
+
+            transaction.oncomplete = () => {
+                showToast(`${selectedPhotoIds.size} photo(s) supprimée(s)`, 'trash-2');
+                selectedPhotoIds.clear();
+                toggleSelectMode();
+            };
         }
 
         // Télécharger n'importe quelle URL de données (Base64)
@@ -343,7 +375,7 @@
             showToast('Téléchargement démarré', 'download');
         }
 
-        // Charger et afficher la galerie d'images depuis IndexedDB
+        // Charger et afficher la galerie d'images depuis IndexedDB avec commandes rapides
         function loadGallery() {
             if (!db) return;
 
@@ -354,12 +386,12 @@
             request.onsuccess = () => {
                 const photos = request.result.reverse(); // Du plus récent au plus ancien
                 
-                // Mettre à jour le badge de compteur
-                document.getElementById('storage-badge').innerText = `${photos.length} photo(s) en mémoire`;
+                document.getElementById('storage-badge').innerText = `${photos.length} photo(s) localement`;
 
                 if (photos.length === 0) {
                     galleryGrid.innerHTML = '';
                     galleryEmpty.classList.remove('hidden');
+                    if (isSelectMode) toggleSelectMode();
                     return;
                 }
 
@@ -367,30 +399,41 @@
                 galleryGrid.innerHTML = '';
 
                 photos.forEach(photo => {
+                    const isSelected = selectedPhotoIds.has(photo.id);
                     const item = document.createElement('div');
-                    item.className = 'relative group aspect-square bg-slate-900 rounded-lg overflow-hidden border border-slate-800';
+                    item.className = `relative group aspect-square bg-slate-900 rounded-xl overflow-hidden border ${isSelected ? 'border-indigo-500 ring-2 ring-indigo-500/50' : 'border-slate-800'} transition-all`;
 
-                    item.innerHTML = `
-                        <img src="${photo.data}" class="w-full h-full object-cover" alt="Photo enregistrée">
-                        <div class="absolute inset-0 bg-slate-950/70 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5 p-1">
-                            <button onclick="downloadDataUrl('${photo.data}', 'photo-${photo.timestamp}.jpg')" class="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-md transition" title="Télécharger">
-                                <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                    if (isSelectMode) {
+                        item.onclick = () => toggleSelectPhoto(photo.id);
+                        item.innerHTML = `
+                            <img src="${photo.data}" class="w-full h-full object-cover" alt="Photo">
+                            <div class="absolute top-2 right-2 w-6 h-6 rounded-full border-2 ${isSelected ? 'bg-indigo-600 border-indigo-400' : 'bg-slate-900/80 border-slate-500'} flex items-center justify-center">
+                                ${isSelected ? '<i data-lucide="check" class="w-3.5 h-3.5 text-white"></i>' : ''}
+                            </div>
+                        `;
+                    } else {
+                        item.innerHTML = `
+                            <img src="${photo.data}" class="w-full h-full object-cover" alt="Photo">
+                            
+                            <!-- Actions directes adaptées au tactile mobile -->
+                            <div class="absolute inset-x-0 bottom-0 p-1.5 bg-gradient-to-t from-slate-950/90 via-slate-950/60 to-transparent flex items-center justify-between gap-1">
+                                <button onclick="downloadDataUrl('${photo.data}', 'photo-${photo.timestamp}.jpg')" class="p-2 bg-slate-800/90 hover:bg-slate-700 active:scale-95 text-slate-200 rounded-lg transition touch-manipulation" title="Télécharger">
                             </button>
-                            <button onclick="deletePhoto(${photo.id})" class="p-1.5 bg-rose-900/60 hover:bg-rose-700 text-rose-200 rounded-md transition" title="Supprimer">
-                                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                            </button>
-                        </div>
-                    `;
+                                <button onclick="deletePhoto(${photo.id})" class="p-2 bg-rose-600/90 hover:bg-rose-600 active:scale-95 text-white rounded-lg transition touch-manipulation shadow-md shadow-rose-900/30" title="Supprimer immédiatement">
+                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        `;
+                    }
 
                     galleryGrid.appendChild(item);
                 });
 
-                // Réinitialiser les icônes Lucide dynamiquement
                 lucide.createIcons();
             };
         }
 
-        // Supprimer une photo spécifique d'IndexedDB
+        // Supprimer une photo spécifique directement
         function deletePhoto(id) {
             if (!db) return;
 
@@ -399,33 +442,19 @@
             store.delete(id);
 
             transaction.oncomplete = () => {
-                showToast('Photo supprimée', 'trash');
+                showToast('Photo supprimée', 'trash-2');
                 loadGallery();
             };
         }
 
-        // Effacer toute la galerie localement
-        function clearAllGallery() {
-            if (!db) return;
-
-            const transaction = db.transaction(['photos'], 'readwrite');
-            const store = transaction.objectStore('photos');
-            store.clear();
-
-            transaction.oncomplete = () => {
-                showToast('Galerie réinitialisée', 'check');
-                loadGallery();
-            };
-        }
-
-        // Afficher des notifications temporaires (Toast)
+        // Notifications Toast
         let toastTimeout;
         function showToast(message, iconName = 'info') {
             const toast = document.getElementById('toast');
             const toastMsg = document.getElementById('toast-message');
             const toastIcon = document.getElementById('toast-icon');
 
-toastMsg.innerText = message;
+            toastMsg.innerText = message;
             toastIcon.setAttribute('data-lucide', iconName);
             lucide.createIcons();
 
@@ -436,10 +465,10 @@ toastMsg.innerText = message;
             toastTimeout = setTimeout(() => {
                 toast.classList.replace('translate-y-0', 'translate-y-20');
                 toast.classList.replace('opacity-100', 'opacity-0');
-            }, 2500);
+            }, 2000);
         }
 
-        // Initialiser l'application au chargement
+        // Initialisation globale
         window.addEventListener('load', () => {
             initDB();
             lucide.createIcons();
