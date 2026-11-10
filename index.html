@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="fr" class="h-full bg-slate-900 text-slate-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photo Studio & Galerie</title>
+    <!-- Tailwind CSS pour un design moderne et réactif -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons pour des icônes élégantes -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Masquer la barre de défilement tout en gardant la fonction */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="h-full flex flex-col justify-between antialiased selection:bg-indigo-500 selection:text-white">
+
+    <!-- En-tête -->
+    <header class="border-b border-slate-800 bg-slate-950/80 backdrop-blur sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="p-2 bg-indigo-600/20 text-indigo-400 rounded-xl border border-indigo-500/30">
+                    <i data-lucide="camera" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-semibold tracking-tight">Web Cam Studio</h1>
+                    <p class="text-xs text-slate-400">Capturez, sauvegardez et téléchargez vos photos</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <span id="storage-badge" class="text-xs px-3 py-1 rounded-full bg-slate-800 text-slate-400 border border-slate-700">
+                    Chargement...
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Contenu Principal -->
+    <main class="max-w-6xl mx-auto px-4 py-6 flex-1 w-full grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- Zone Caméra & Capture (7 Cols) -->
+        <section class="lg:col-span-7 flex flex-col gap-4">
+            <div class="bg-slate-950 rounded-2xl border border-slate-800 p-4 shadow-xl flex flex-col justify-between h-[420px] sm:h-[480px] relative overflow-hidden group">
+                
+                <!-- Écran Caméra / Flux Vidéo -->
+                <div class="relative w-full h-full bg-slate-900 rounded-xl overflow-hidden flex items-center justify-center border border-slate-800/80">
+                    
+                    <!-- Message si caméra éteinte -->
+                    <div id="camera-placeholder" class="flex flex-col items-center justify-center text-center p-6 text-slate-500">
+                        <div class="p-4 bg-slate-800/50 rounded-full mb-3 text-slate-400">
+                            <i data-lucide="video-off" class="w-10 h-10"></i>
+                        </div>
+                        <p class="text-sm font-medium">Caméra désactivée</p>
+                        <p class="text-xs text-slate-600 max-w-xs mt-1">Autorisez l'accès à la caméra pour commencer à prendre des photos.</p>
+                    </div>
+
+                    <!-- Elements Flux Vidéo & Canvas -->
+                    <video id="video-stream" autoplay playsinline class="w-full h-full object-cover hidden -scale-x-100"></video>
+                    <canvas id="photo-canvas" class="hidden"></canvas>
+
+                    <!-- Flash Visuel lors de la capture -->
+                    <div id="flash-effect" class="absolute inset-0 bg-white opacity-0 pointer-events-none transition-opacity duration-150"></div>
+                </div>
+
+                <!-- Commandes de la Caméra -->
+                <div class="mt-4 flex items-center justify-center gap-3">
+                    <button id="btn-toggle-camera" onclick="toggleCamera()" class="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white text-sm font-medium transition flex items-center gap-2 shadow-lg shadow-indigo-600/20">
+                        <i data-lucide="power" class="w-4 h-4"></i>
+                        <span>Démarrer Caméra</span>
+                    </button>
+
+                    <button id="btn-capture" onclick="takePhoto()" disabled class="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white text-sm font-medium transition flex items-center gap-2 shadow-lg shadow-emerald-600/20 disabled:opacity-40 disabled:cursor-not-allowed disabled:active:scale-100">
+                        <i data-lucide="aperture" class="w-4 h-4"></i>
+                        <span>Prendre Photo</span>
+                    </button>
+                    
+                    <button id="btn-flip" onclick="flipCamera()" class="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition hidden" title="Changer de caméra">
+                        <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Aperçu & Galerie (5 Cols) -->
+        <section class="lg:col-span-5 flex flex-col gap-6">
+
+            <!-- Aperçu de la Dernière Capture -->
+            <div class="bg-slate-950 rounded-2xl border border-slate-800 p-4 shadow-xl">
+                <h2 class="text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">
+                    <i data-lucide="image" class="w-4 h-4 text-indigo-400"></i>
+                    Dernière capture
+                </h2>
+                
+                <div id="preview-container" class="relative aspect-video bg-slate-900 rounded-xl overflow-hidden border border-slate-800 flex items-center justify-center">
+                    <span id="preview-empty" class="text-xs text-slate-500">Aucune photo prise</span>
+                    <img id="preview-image" class="w-full h-full object-cover hidden" alt="Aperçu de la photo">
+                </div>
+
+                <!-- Actions sur l'aperçu -->
+                <div id="preview-actions" class="mt-3 grid grid-cols-2 gap-2 opacity-50 pointer-events-none transition-opacity">
+                    <button id="btn-download-last" onclick="downloadCurrentPhoto()" class="w-full py-2 px-3 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium transition flex items-center justify-center gap-1.5 border border-slate-700">
+                        <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                        Télécharger
+                    </button>
+                    <button id="btn-save-last" onclick="saveCurrentPhoto()" class="w-full py-2 px-3 rounded-lg bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-300 text-xs font-medium transition flex items-center justify-center gap-1.5 border border-indigo-500/30">
+                        <i data-lucide="save" class="w-3.5 h-3.5"></i>
+                        Enregistrer
+                    </button>
+                </div>
+            </div>
+
+            <!-- Galerie Locale -->
+            <div class="bg-slate-950 rounded-2xl border border-slate-800 p-4 shadow-xl flex-1 flex flex-col min-h-[250px]">
+                <div class="flex items-center justify-between mb-3">
+                    <h2 class="text-sm font-semibold text-slate-300 flex items-center gap-2">
+                        <i data-lucide="hard-drive" class="w-4 h-4 text-emerald-400"></i>
+                        Galerie Locale (IndexedDB)
+                    </h2>
+                    <button onclick="clearAllGallery()" class="text-xs text-rose-400 hover:text-rose-300 transition flex items-center gap-1">
+                        <i data-lucide="trash-2" class="w-3 h-3"></i> Tout effacer
+                    </button>
+                </div>
+
+                <!-- Liste d'images stockées -->
+                <div id="gallery-grid" class="grid grid-cols-3 gap-2 overflow-y-auto max-h-[220px] pr-1 no-scrollbar">
+                    <!-- Généré dynamiquement en JS -->
+                </div>
+
+                <div id="gallery-empty" class="flex-1 flex flex-col items-center justify-center text-center p-4 border border-dashed border-slate-800 rounded-xl">
+                    <p class="text-xs text-slate-500">Aucune photo enregistrée localement.</p>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- Zone de Notification (Toast) -->
+    <div id="toast" class="fixed bottom-4 right-4 bg-slate-800 text-slate-100 border border-slate-700 px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 translate-y-20 opacity-0 transition-all duration-300 z-50">
+        <i id="toast-icon" data-lucide="info" class="w-5 h-5 text-indigo-400"></i>
+        <span id="toast-message" class="text-xs font-medium">Message de notification</span>
+    </div>
+
+    <!-- Script JavaScript principal -->
+    <script>
+        // Variables d'état
+        let stream = null;
+        let currentImageData = null;
+        let currentFacingMode = 'user';
+        let db = null;
+
+        // Éléments HTML
+        const video = document.getElementById('video-stream');
+        const canvas = document.getElementById('photo-canvas');
+        const cameraPlaceholder = document.getElementById('camera-placeholder');
+        const btnToggleCamera = document.getElementById('btn-toggle-camera');
+        const btnCapture = document.getElementById('btn-capture');
+        const btnFlip = document.getElementById('btn-flip');
+        const previewImage = document.getElementById('preview-image');
+        const previewEmpty = document.getElementById('preview-empty');
+        const previewActions = document.getElementById('preview-actions');
+        const galleryGrid = document.getElementById('gallery-grid');
+        const galleryEmpty = document.getElementById('gallery-empty');
+
+        // Initialisation d'IndexedDB pour un stockage puissant et persistant
+        function initDB() {
+            const request = indexedDB.open('PhotoStudioDB', 1);
+
+            request.onupgradeneeded = (e) => {
+                const database = e.target.result;
+                if (!database.objectStoreNames.contains('photos')) {
+                    database.createObjectStore('photos', { keyPath: 'id', autoIncrement: true });
+                }
+            };
+
+            request.onsuccess = (e) => {
+                db = e.target.result;
+                loadGallery();
+            };
+
+            request.onerror = (e) => {
+                showToast('Erreur d\'accès à IndexedDB', 'alert-circle');
+            };
+        }
+
+        // Basculer l'état de la caméra (Marche/Arrêt)
+        async function toggleCamera() {
+            if (stream) {
+                stopCamera();
+            } else {
+                await startCamera();
+            }
+        }
+
+        // Démarrer le flux de la caméra
+        async function startCamera() {
+            try {
+                const constraints = {
+                    video: {
+                        facingMode: currentFacingMode,
+                        width: { ideal: 1920 },
+                        height: { ideal: 1080 }
+                    },
+                    audio: false
+                };
+
+                stream = await navigator.mediaDevices.getUserMedia(constraints);
+                video.srcObject = stream;
+                
+                video.classList.remove('hidden');
+                cameraPlaceholder.classList.add('hidden');
+                btnCapture.disabled = false;
+                
+                // Mettre à jour le bouton
+                btnToggleCamera.classList.replace('bg-indigo-600', 'bg-rose-600');
+                btnToggleCamera.classList.replace('hover:bg-indigo-500', 'hover:bg-rose-500');
+                btnToggleCamera.querySelector('span').innerText = 'Arrêter Caméra';
+                
+                // Détecter si plusieurs caméras sont disponibles
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                const videoDevices = devices.filter(d => d.kind === 'videoinput');
+                if (videoDevices.length > 1) {
+                    btnFlip.classList.remove('hidden');
+                }
+
+                showToast('Caméra activée', 'camera');
+            } catch (err) {
+                console.error("Erreur d'accès à la caméra:", err);
+                showToast('Impossible d\'accéder à la caméra', 'alert-triangle');
+            }
+        }
+
+        // Arrêter le flux de la caméra
+        function stopCamera() {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+            }
+            video.srcObject = null;
+            video.classList.add('hidden');
+            cameraPlaceholder.classList.remove('hidden');
+            btnCapture.disabled = true;
+            btnFlip.classList.add('hidden');
+
+            // Réinitialiser le bouton
+            btnToggleCamera.classList.replace('bg-rose-600', 'bg-indigo-600');
+            btnToggleCamera.classList.replace('hover:bg-rose-500', 'hover:bg-indigo-500');
+            btnToggleCamera.querySelector('span').innerText = 'Démarrer Caméra';
+
+            showToast('Caméra désactivée', 'power');
+        }
+
+        // Changer entre caméra frontale/arrière sur mobile
+        async function flipCamera() {
+            currentFacingMode = currentFacingMode === 'user' ? 'environment' : 'user';
+            stopCamera();
+            await startCamera();
+        }
+
+        // Capturer une photo depuis le flux vidéo
+        function takePhoto() {
+            if (!stream) return;
+
+            // Effet d'éclair/flash
+            const flash = document.getElementById('flash-effect');
+            flash.classList.replace('opacity-0', 'opacity-90');
+            setTimeout(() => flash.classList.replace('opacity-90', 'opacity-0'), 150);
+
+            // Ajuster les dimensions du Canvas au flux vidéo réel
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const ctx = canvas.getContext('2d');
+
+            // Gérer la symétrie miroir (si caméra frontale)
+            if (currentFacingMode === 'user') {
+                ctx.translate(canvas.width, 0);
+                ctx.scale(-1, 1);
+            }
+
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            // Extraire la photo en format Base64 JPEG (haute qualité)
+            currentImageData = canvas.toDataURL('image/jpeg', 0.92);
+
+            // Afficher dans la zone de prévisualisation
+            previewImage.src = currentImageData;
+            previewImage.classList.remove('hidden');
+            previewEmpty.classList.add('hidden');
+            previewActions.classList.remove('opacity-50', 'pointer-events-none');
+
+            showToast('Photo capturée !', 'check');
+        }
+
+        // Enregistrer la photo courante dans IndexedDB
+        function saveCurrentPhoto() {
+            if (!currentImageData || !db) return;
+
+            const transaction = db.transaction(['photos'], 'readwrite');
+            const store = transaction.objectStore('photos');
+            
+            const photoRecord = {
+                data: currentImageData,
+                date: new Date().toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' }),
+                timestamp: Date.now()
+            };
+
+            const request = store.add(photoRecord);
+
+            request.onsuccess = () => {
+                showToast('Photo enregistrée en local !', 'hard-drive');
+                loadGallery();
+            };
+
+            request.onerror = () => {
+                showToast('Erreur d\'enregistrement', 'alert-circle');
+            };
+        }
+
+        // Télécharger la photo courante directement
+        function downloadCurrentPhoto() {
+            if (!currentImageData) return;
+            downloadDataUrl(currentImageData, `photo-${Date.now()}.jpg`);
+        }
+
+        // Télécharger n'importe quelle URL de données (Base64)
+        function downloadDataUrl(dataUrl, filename) {
+            const a = document.createElement('a');
+            a.href = dataUrl;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            showToast('Téléchargement démarré', 'download');
+        }
+
+        // Charger et afficher la galerie d'images depuis IndexedDB
+        function loadGallery() {
+            if (!db) return;
+
+            const transaction = db.transaction(['photos'], 'readonly');
+            const store = transaction.objectStore('photos');
+            const request = store.getAll();
+
+            request.onsuccess = () => {
+                const photos = request.result.reverse(); // Du plus récent au plus ancien
+                
+                // Mettre à jour le badge de compteur
+                document.getElementById('storage-badge').innerText = `${photos.length} photo(s) en mémoire`;
+
+                if (photos.length === 0) {
+                    galleryGrid.innerHTML = '';
+                    galleryEmpty.classList.remove('hidden');
+                    return;
+                }
+
+                galleryEmpty.classList.add('hidden');
+                galleryGrid.innerHTML = '';
+
+                photos.forEach(photo => {
+                    const item = document.createElement('div');
+                    item.className = 'relative group aspect-square bg-slate-900 rounded-lg overflow-hidden border border-slate-800';
+
+                    item.innerHTML = `
+                        <img src="${photo.data}" class="w-full h-full object-cover" alt="Photo enregistrée">
+                        <div class="absolute inset-0 bg-slate-950/70 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5 p-1">
+                            <button onclick="downloadDataUrl('${photo.data}', 'photo-${photo.timestamp}.jpg')" class="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-md transition" title="Télécharger">
+                                <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                            </button>
+                            <button onclick="deletePhoto(${photo.id})" class="p-1.5 bg-rose-900/60 hover:bg-rose-700 text-rose-200 rounded-md transition" title="Supprimer">
+                                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                            </button>
+                        </div>
+                    `;
+
+                    galleryGrid.appendChild(item);
+                });
+
+                // Réinitialiser les icônes Lucide dynamiquement
+                lucide.createIcons();
+            };
+        }
+
+        // Supprimer une photo spécifique d'IndexedDB
+        function deletePhoto(id) {
+            if (!db) return;
+
+            const transaction = db.transaction(['photos'], 'readwrite');
+            const store = transaction.objectStore('photos');
+            store.delete(id);
+
+            transaction.oncomplete = () => {
+                showToast('Photo supprimée', 'trash');
+                loadGallery();
+            };
+        }
+
+        // Effacer toute la galerie localement
+        function clearAllGallery() {
+            if (!db) return;
+
+            const transaction = db.transaction(['photos'], 'readwrite');
+            const store = transaction.objectStore('photos');
+            store.clear();
+
+            transaction.oncomplete = () => {
+                showToast('Galerie réinitialisée', 'check');
+                loadGallery();
+            };
+        }
+
+        // Afficher des notifications temporaires (Toast)
+        let toastTimeout;
+        function showToast(message, iconName = 'info') {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-message');
+            const toastIcon = document.getElementById(
